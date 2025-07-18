@@ -30,8 +30,7 @@ Inside each project folder, you'll find:
 If you'd like to learn more about a project, request access to private source code, or just connect — feel free to reach out!
 
 - GitHub: [https://github.com/casper-pel](https://github.com/casper-pel)
-- LinkedIn: [https://linkedin.com/in/yourlinkedin](https://linkedin.com/in/yourlinkedin)
-- Email: casper.pelsma@gmail.com (mailto:casper.pelsma@gmail.com)
+- Email: [casper.pelsma@gmail.com](mailto:casper.pelsma@gmail.com)
 
 ---
 
