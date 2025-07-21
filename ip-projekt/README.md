@@ -18,15 +18,15 @@ Dieses Projekt ist ein umfassendes Management- und Kassensystem, das mehrere Ver
 
 ### 1. **Menü**
 
-![Menü](./images/menu.jpg)
+![Menü](./images/menu.png)
 
-Das Menü ermöglicht eine einfache Navigation zu den verschiedenen Bereichen des Systems.
+Das Menü erscheint nach der Anmeldung und bietet eine schnelle Navigation zum Dashboard oder zur Kasse 
 
-### 2. **Startbildschirm**
+### 2. **Startbildschirm des Dashboards**
 
 ![Startbildschirm](./images/startbildschirm.png)
 
-Der Startbildschirm zeigt eine Übersicht über alle relevanten Funktionen des Systems.
+Der Startbildschirm begrüßt den User und gibt ihn die möglichkeit sein Passwort zu aktualisieren.
 
 ### 3. **Kasse**
 
@@ -50,7 +50,7 @@ Die Finanzübersicht zeigt eine detaillierte Darstellung der Kassenbewegungen un
 
 ![Urlaubsanträge](./images/urlaub.png)
 
-Mitarbeiter können Urlaubsanträge stellen, die durch das System verwaltet werden.
+Mitarbeiter können Urlaubsanträge stellen, die durch das berechtigte User verwaltet werden.
 
 ### 7. **Rollenverwaltung**
 
@@ -68,7 +68,7 @@ Die Mitarbeiterverwaltung bietet eine Übersicht und Bearbeitung von Mitarbeiter
 
 ![Produktverwaltung](./images/produkte.png)
 
-Produkte können hier erstellt, bearbeitet und gelöscht werden. Dies umfasst auch die Verwaltung von Coupons.
+Produkte können hier erstellt, bearbeitet und gelöscht werden.
 
 ### 10. **Coupon Übersicht**
 
