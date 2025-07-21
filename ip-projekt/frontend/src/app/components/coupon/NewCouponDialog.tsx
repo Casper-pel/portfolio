@@ -20,9 +20,9 @@ export default function NewCouponDialog({ open, onClose}: Props) {
     name: "",
     amountOff: 0,
     percentOff: 0,
-    currency: "eur",
+    currency: "EUR",
     duration: "once",
-  });
+  });         
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,7 +53,7 @@ export default function NewCouponDialog({ open, onClose}: Props) {
           name: "",
           amountOff: 0,
           percentOff: 0,
-          currency: "eur",
+          currency: "EUR",
           duration: "once",
         });
       } else {
@@ -104,8 +104,8 @@ export default function NewCouponDialog({ open, onClose}: Props) {
           select
           fullWidth
         >
-          <MenuItem value="eur">EUR (€)</MenuItem>
-          <MenuItem value="usd">USD ($)</MenuItem>
+          <MenuItem value="EUR">EUR (€)</MenuItem>
+          <MenuItem value="USD">USD ($)</MenuItem>
         </TextField>
         <TextField
           margin="dense"

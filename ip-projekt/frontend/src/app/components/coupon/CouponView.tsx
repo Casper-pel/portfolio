@@ -130,7 +130,7 @@ export const CouponView = () => {
                                     <TableCell>
                                         {coupon.amountOff > 0 ? coupon.amountOff / 100 : "-"}
                                     </TableCell>
-                                    <TableCell>{coupon.currency === "eur" ? "€" : "$"}</TableCell>
+                                    <TableCell>{coupon.currency === "EUR" ? "€" : "$"}</TableCell>
                                     <TableCell>{coupon.duration}</TableCell>
                                     <TableCell>
                                         {coupon.percentOff > 0 ? `${coupon.percentOff}%` : "-"}
