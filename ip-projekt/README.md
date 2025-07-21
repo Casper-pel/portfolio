@@ -16,63 +16,63 @@ Dieses Projekt ist ein umfassendes Management- und Kassensystem, das mehrere Ver
 
 ## Screenshots
 
-### 1. **Startbildschirm**
+### 1. **Menü**
+
+![Menü](./images/menu.jpg)
+
+Das Menü ermöglicht eine einfache Navigation zu den verschiedenen Bereichen des Systems.
+
+### 2. **Startbildschirm**
 
 ![Startbildschirm](./images/startbildschirm.png)
 
 Der Startbildschirm zeigt eine Übersicht über alle relevanten Funktionen des Systems.
 
-### 2. **Menü**
-
-![Menü](path/to/menu.jpg)
-
-Das Menü ermöglicht eine einfache Navigation zu den verschiedenen Bereichen des Systems.
-
 ### 3. **Kasse**
 
-![Kasse](path/to/kasse.jpg)
+![Kasse](./images/kasse.png)
 
 Der Kassenbereich bietet eine benutzerfreundliche Oberfläche zur Bearbeitung von Bestellungen.
 
 ### 4. **Checkout mit Stripe**
 
-![Checkout Stripe](path/to/checkout-stripe.jpg)
+![Checkout Stripe](./images/checkout.png)
 
 Das Kassensystem bietet eine nahtlose Stripe-Zahlungsabwicklung im Checkout-Prozess.
 
 ### 5. **Finanzübersicht**
 
-![Finanzübersicht](path/to/finanzuebersicht.jpg)
+![Finanzübersicht](./images/finanzen.png)
 
 Die Finanzübersicht zeigt eine detaillierte Darstellung der Kassenbewegungen und ermöglicht eine einfache Nachverfolgung der Finanzen.
 
 ### 6. **Urlaubsanträge**
 
-![Urlaubsanträge](path/to/urlaubsantraege.jpg)
+![Urlaubsanträge](./images/urlaub.png)
 
 Mitarbeiter können Urlaubsanträge stellen, die durch das System verwaltet werden.
 
 ### 7. **Rollenverwaltung**
 
-![Rollenverwaltung](path/to/rollenverwaltung.jpg)
+![Rollenverwaltung](./images/rollen.png)
 
 In der Rollenverwaltung können Nutzerrollen angepasst und verwaltet werden.
 
 ### 8. **Mitarbeiterverwaltung**
 
-![Mitarbeiterverwaltung](path/to/mitarbeiterverwaltung.jpg)
+![Mitarbeiterverwaltung](./images/mitarbeiter.png)
 
 Die Mitarbeiterverwaltung bietet eine Übersicht und Bearbeitung von Mitarbeiterdaten und -rollen.
 
 ### 9. **Produktverwaltung**
 
-![Produktverwaltung](path/to/produktverwaltung.jpg)
+![Produktverwaltung](./images/produkte.png)
 
 Produkte können hier erstellt, bearbeitet und gelöscht werden. Dies umfasst auch die Verwaltung von Coupons.
 
 ### 10. **Coupon Übersicht**
 
-![Coupon Übersicht](path/to/coupon-uebersicht.jpg)
+![Coupon Übersicht](./images/coupon.png)
 
 In der Coupon Übersicht können alle aktiven und inaktiven Coupons angezeigt werden.
 
