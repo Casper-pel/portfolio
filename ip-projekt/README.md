@@ -18,7 +18,7 @@ Dieses Projekt ist ein umfassendes Management- und Kassensystem, das mehrere Ver
 
 ### 1. **Startbildschirm**
 
-![Startbildschirm](./startbildschirm.png)
+![Startbildschirm](./images/startbildschirm.png)
 
 Der Startbildschirm zeigt eine Übersicht über alle relevanten Funktionen des Systems.
 
