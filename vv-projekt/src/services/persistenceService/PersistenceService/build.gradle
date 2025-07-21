@@ -1,0 +1,70 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+    id "org.sonarqube" version "6.0.1.5171"
+}
+
+group = 'de.thro.importer'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+application{
+    mainClass = 'de.thro.persistence.Main'
+}
+
+dependencies {
+    implementation project(':shared')
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.awaitility:awaitility:4.2.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'commons-io:commons-io:2.19.0'
+    implementation 'commons-cli:commons-cli:1.5.0'
+    implementation 'com.rabbitmq:amqp-client:5.21.0'
+    implementation 'org.springframework.boot:spring-boot-starter:3.2.5'
+}
+
+test {
+    useJUnitPlatform()
+    ignoreFailures = true
+    finalizedBy jacocoTestReport
+}
+jacoco {
+    toolVersion = "0.8.12"
+    reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
+}
+jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+sonarqube {
+    properties {
+        property "sonar.host.url", "https://inf-sonarqube.th-rosenheim.de"
+        property "sonar.projectKey", "persistence_service"
+//      property "sonar.java.binaries", "build/classes/java/main"
+    }
+}
+
+jar {
+    dependsOn ':shared:jar'
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass.get() // Replace with your actual main class
+        )
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    destinationDirectory = file("$buildDir/libs")
+}

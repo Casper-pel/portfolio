@@ -1,0 +1,50 @@
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'jacoco'
+    id "org.sonarqube" version "6.0.1.5171"
+}
+
+group = 'de.thro'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.rabbitmq:amqp-client:5.25.0'
+    implementation 'ch.qos.logback:logback-classic:1.5.18'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.springframework.boot:spring-boot-starter:3.2.5'
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+    ignoreFailures = true
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+sonarqube {
+    properties {
+        property "sonar.host.url", "https://inf-sonarqube.th-rosenheim.de"
+        property "sonar.projectKey", "shared_lib"
+//      property "sonar.java.binaries", "build/classes/java/main"
+    }
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

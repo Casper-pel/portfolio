@@ -1,0 +1,11 @@
+rootProject.name = 'VV-Project'
+
+include 'shared'
+include 'documentImporter'
+include 'aipipeline'
+include 'persistenceservice'
+
+project(':shared').projectDir = file('Shared')
+project(':documentImporter').projectDir = file('src/services/documentImporter/DocumentImporter')
+project(':aipipeline').projectDir = file('src/services/aiPipeline/AIPipeline')
+project(':persistenceservice').projectDir = file('src/services/persistenceService/PersistenceService')

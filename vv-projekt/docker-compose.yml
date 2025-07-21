@@ -1,0 +1,109 @@
+services:
+
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sql-server-ai-pipelineservice
+    hostname: sql-server-ai-pipelineservice
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MyStrongP@ssw0rd123
+      - MSSQL_PID=Express
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/1433'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # RabbitMQ message broker port
+      - "15672:15672" # RabbitMQ management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  documentimporter:
+    build:
+      context: ./src/services/documentImporter/DocumentImporter
+      dockerfile: Dockerfile
+    container_name: documentimporter
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+     - RABBITMQ_HOST=rabbitmq
+     - RABBITMQ_PORT=5672
+     - RABBITMQ_USERNAME=user
+     - RABBITMQ_PASSWORD=password
+    env_file:
+      - ./src/services/documentImporter/DocumentImporter/.env
+    volumes:
+      - ./pdf_input:/pdf/offers
+    ports:
+     - "8080:8080"
+    restart: unless-stopped
+    tty: true
+    develop:
+      watch:
+        - action: sync
+          path: ./pdf_input
+          target: /pdf/offers
+
+  persistenceservice:
+    build:
+      context: ./src/services/persistenceService/PersistenceService
+      dockerfile: Dockerfile
+    container_name: persistenceservice
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+     - RABBITMQ_HOST=rabbitmq
+     - RABBITMQ_PORT=5672
+     - RABBITMQ_USERNAME=user
+     - RABBITMQ_PASSWORD=password
+    env_file:
+      - ./src/services/persistenceService/PersistenceService/.env
+    volumes:
+      - ./json_output:/data
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    tty: true
+
+  aipipeline:
+    build:
+      context: ./src/services/aiPipeline/AIPipeline
+      dockerfile: Dockerfile
+    container_name: aipipeline
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sql-server:
+        condition: service_healthy
+    environment:
+     - RABBITMQ_HOST=rabbitmq
+     - RABBITMQ_PORT=5672
+     - RABBITMQ_USERNAME=user
+     - RABBITMQ_PASSWORD=password
+    env_file:
+      - ./src/services/aiPipeline/AIPipeline/.env
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+    tty: true
+
+volumes:
+  sqlserverdata:
+

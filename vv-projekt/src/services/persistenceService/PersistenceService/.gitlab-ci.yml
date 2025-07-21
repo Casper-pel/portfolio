@@ -1,0 +1,96 @@
+stages:
+  - build
+  - test
+  - deliver
+  - run
+
+build-scanner:
+  stage: build
+  image: gradle:8.13.0-jdk21
+  script:
+#    - cd src/services/persistenceService/PersistenceService
+    - chmod +x ./gradlew
+    - ./gradlew :shared:build
+    - ./gradlew :documentimporter:build -x test
+    - ./gradlew :persistenceservice:build -x test
+    - ./gradlew :aipipeline:build
+  artifacts:
+    paths:
+      - src/services/persistenceService/PersistenceService/build/libs/*.jar
+      - src/services/aiPipeline/AIPipeline/build/libs/*.jar
+      - src/services/documentImporter/DocumentImporter/build/libs/*.jar
+
+
+test-scanner:
+  stage: test
+  image: gradle:8.13.0-jdk21
+  services:
+    - name: rabbitmq:3-management # Add RabbitMQ service
+      alias: rabbitmq
+      variables:
+        RABBITMQ_DEFAULT_USER: user
+        RABBITMQ_DEFAULT_PASS: password
+  variables:
+    RABBITMQ_HOST: rabbitmq
+    RABBITMQ_PORT: "5672"
+    RABBITMQ_USERNAME: user
+    RABBITMQ_PASSWORD: password
+  before_script:
+    - apt-get update && apt-get install -y netcat-openbsd
+    - echo "Waiting for RabbitMQ to be ready on port 5672..."
+    - until nc -z rabbitmq 5672; do echo "Still waiting..."; sleep 1; done
+    - echo "RabbitMQ is up."
+  script:
+    - cd src/services/persistenceService/PersistenceService
+    - chmod +x ./gradlew
+    - echo "compiling and creating deployable artifact"
+    - ./gradlew check sonar -info
+    - cat ./build/jacocoHtml/index.html | grep -o '<tfoot>.*</tfoot>'
+  coverage: "/Total.*?([0-9]{1,3})%/"
+
+deliver-scanner:
+  stage: deliver
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker pull eclipse-temurin:21-jre
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  dependencies:
+    - build-scanner
+  script:
+    - cd src/services/persistenceService/PersistenceService
+    - VERSION_TAG=$(date +'%Y%m%d')
+    - IMAGE_TAG="$CI_REGISTRY_IMAGE:$VERSION_TAG"
+    - docker build -t "$IMAGE_TAG" .
+    - docker tag "$IMAGE_TAG" "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$IMAGE_TAG"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker logout $CI_REGISTRY
+
+deliver-run-docker-compose:
+  needs:
+    - deliver-scanner
+    - build-scanner
+  image: docker:latest
+  stage: run
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --no-cache bash
+    - mkdir -p /tmp/pdf_input
+  script:
+    - cd src/services/persistenceService/PersistenceService
+#    - #cp example.env .env
+    - echo "Starting containers with docker-compose..."
+    - IMAGE_TAG="$CI_REGISTRY_IMAGE:latest"
+    - echo "Starting containers with docker-compose..."
+    - docker-compose pull
+    - docker-compose up -d
+    - sleep 10
+    - docker-compose ps
+    - docker-compose logs
+    - echo "Validating service functionality..."
+    - docker-compose down || true
+    - docker logout $CI_REGISTRY || true

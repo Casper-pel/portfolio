@@ -1,0 +1,42 @@
+variables:
+  GIT_DEPTH: 0  # Make a full clone
+  GIT_STRATEGY: clone  # Forces a clean clone instead of fetch
+  GIT_CLEAN_FLAGS: -ffdx  # Force clean the working directory
+
+before_script:
+  - git remote prune origin || true
+
+stages:
+  - trigger
+
+trigger-document-importer:
+  stage: trigger
+  rules:
+    - when: always
+  trigger:
+    include: src/services/documentImporter/DocumentImporter/.gitlab-ci.yml
+    strategy: depend
+
+trigger-ai-pipeline:
+  stage: trigger  
+  rules:
+    - when: always
+  trigger:
+    include: src/services/aiPipeline/AIPipeline/.gitlab-ci.yml
+    strategy: depend
+
+trigger-persistence-service:
+  stage: trigger
+  rules:
+    - when: always
+  trigger:
+    include: src/services/persistenceService/PersistenceService/.gitlab-ci.yml
+    strategy: depend
+
+trigger-shared:
+    stage: trigger
+    rules:
+        - when: always
+    trigger:
+        include: Shared/.gitlab-ci.yml
+        strategy: depend

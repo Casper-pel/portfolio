@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+build-shared:
+  stage: build
+  image: gradle:8.13.0-jdk21
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew :shared:build
+  artifacts:
+    paths:
+      - Shared/build/libs/*.jar
+
+test-shared:
+    stage: test
+    image: gradle:8.13.0-jdk21
+    script:
+        - cd Shared
+        - chmod +x ./gradlew
+        - echo "compiling and creating deployable artifact"
+        - ./gradlew check sonar -info
+        - cat ./build/jacocoHtml/index.html | grep -o '<tfoot>.*</tfoot>'
+    coverage: "/Total.*?([0-9]{1,3})%/"

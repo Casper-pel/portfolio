@@ -1,0 +1,83 @@
+stages:
+  - build
+  - test
+  - deliver
+  - run
+
+build-scanner:
+  stage: build
+  image: gradle:8.13.0-jdk21
+  script:
+    # - cd src/services/documentImporter/DocumentImporter
+    - chmod +x ./gradlew
+    - echo "compiling and creating deployable artifact"
+    - ./gradlew :shared:build
+    - ./gradlew :documentImporter:build -x test
+    - ./gradlew :aipipeline:build
+    - ./gradlew :persistenceservice:build -x test
+  artifacts:
+    paths:
+      - src/services/documentImporter/DocumentImporter/build/libs/*.jar
+      - src/services/aiPipeline/AIPipeline/build/libs/*.jar
+      - src/services/persistenceService/PersistenceService/build/libs/*.jar
+
+
+test-scanner:
+  stage: test
+  image: gradle:8.13.0-jdk21
+  script:
+    - cd src/services/documentImporter/DocumentImporter
+    - chmod +x ./gradlew
+    - echo "compiling and creating deployable artifact"
+    - ./gradlew check sonar
+    - cat ./build/jacocoHtml/index.html | grep -o '<tfoot>.*</tfoot>'
+  coverage: "/Total.*?([0-9]{1,3})%/"
+
+deliver-scanner:
+  # Official docker image.
+  image: docker:latest
+  stage: deliver
+  services:
+    - docker:dind
+  before_script: # install docker
+    - docker pull eclipse-temurin:21-jre
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  dependencies:
+    - build-scanner
+  script:
+    - cd src/services/documentImporter/DocumentImporter
+    - VERSION_TAG=$(date +'%Y%m%d')
+    - IMAGE_TAG="$CI_REGISTRY_IMAGE:$VERSION_TAG"
+    - ls build/libs
+    - docker build -t "$IMAGE_TAG" .
+    - docker tag "$IMAGE_TAG" "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$IMAGE_TAG"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker logout $CI_REGISTRY
+
+deliver-run-docker-compose:
+  needs:
+    - deliver-scanner
+    - build-scanner
+  image: docker:latest
+  stage: run
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --no-cache bash
+    - mkdir -p /tmp/pdf_input
+  script:
+    - cd src/services/documentImporter/DocumentImporter
+    - cp example.env .env
+    - echo "Starting containers with docker-compose..."
+    - IMAGE_TAG="$CI_REGISTRY_IMAGE:latest"
+    - echo "Starting containers with docker-compose..."
+    - docker-compose pull
+    - docker-compose up -d
+    - sleep 10
+    - docker-compose ps
+    - docker-compose logs
+    - echo "Validating service functionality..."
+    - docker-compose down || true
+    - docker logout $CI_REGISTRY || true

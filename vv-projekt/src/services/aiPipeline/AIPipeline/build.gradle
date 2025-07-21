@@ -1,0 +1,83 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'io.freefair.lombok' version '8.4'
+    id 'jacoco'
+    id "org.sonarqube" version "6.0.1.5171"
+}
+
+group = 'de.thro'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'de.thro.pipeline.Main'
+}
+
+tasks.named('jar') {
+    dependsOn ':shared:jar'
+}
+
+
+
+dependencies {
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.17'
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation project(':shared')
+    implementation 'com.rabbitmq:amqp-client:5.21.0'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp' // Für RabbitMQ
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc'  // Für SQL Server
+    implementation 'org.springframework.boot:spring-boot-starter-web' // Für API und Web
+    implementation 'jakarta.persistence:jakarta.persistence-api' // Wichtig für @Entity
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation("com.openai:openai-java:1.5.1")
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+}
+
+test {
+    useJUnitPlatform()
+    ignoreFailures = true
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+sonarqube {
+    properties {
+        property "sonar.host.url", "https://inf-sonarqube.th-rosenheim.de"
+        property "sonar.projectKey", "ai_pipeline"
+//      property "sonar.java.binaries", "build/classes/java/main"
+    }
+}
+jar {
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass.get() // Replace with your actual main class
+        )
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    destinationDirectory = file("$buildDir/libs")
+}
