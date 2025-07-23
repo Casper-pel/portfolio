@@ -1,75 +1,166 @@
-# DocumentImporter – Übersicht
+# AI-Pipeline System – Automatisierter Angebots-/Rechnungsvergleich
 
-## Szenario
+## Überblick
 
-Im Rahmen des Moduls **Verteilte Verarbeitung (SS 2025)** entwickeln wir ein verteiltes System zur Automatisierung von Dokumentenvergleichen für das fiktive Unternehmen **Tunnelgräber GmbH**. Das Unternehmen vergleicht Angebote mit nachfolgenden Rechnungen, um Fehler und übersehene Leistungen zu vermeiden. Ziel ist es, diesen manuellen Schritt durch einen intelligenten Service zu ersetzen.
+Dieses verteilte System automatisiert den Vergleich von Angeboten und Rechnungen für das fiktive Unternehmen **Tunnelgräber GmbH**. Es verarbeitet strukturierte PDF-Dateien, wandelt sie in JSON um, analysiert die Daten mit Hilfe von KI, vergleicht sie mit vorhandenen Angeboten und speichert sie in einer Datenbank. Die Architektur basiert auf Microservices und verwendet RabbitMQ zur Kommunikation.
 
-## Teilprojekte
+## Architektur
 
-- [DocumentImporter](./src/services/documentImporter/DocumentImporter/README.md)
-- [AiPipeline](./src/services/aiPipeline/AiPipeline/README.md)
-- [Messaging Service](./src/services/persistenceService/PersistenceService/README.md)
-- [Shared Library](./src/services/shared/README.md)
+Das Projekt besteht aus folgenden Komponenten:
 
-## Warum Apache PDFBox?
+### 🧾 DocumentImporter
 
-Die **Apache PDFBox**-Bibliothek wird für das Parsen und Extrahieren von Daten aus PDF-Dateien verwendet, weil:
+- Überwacht ein konfiguriertes Verzeichnis (`PATH_OFFERS`)
+- Erkennt neue oder geänderte PDF-Dateien
+- Liest PDF-Dateien mit Apache PDFBox ein
+- Wandelt den Inhalt in ein standardisiertes JSON-Format um
+- Verarbeitet Dateien nur, wenn sie eine bestimmte maximale Größe nicht überschreiten (`MAX_FILE_SIZE`)
+- Sendet die JSON-Daten über RabbitMQ an eine Message Queue
+- Die Verarbeitung erfolgt über konfigurierbare Strategien:
+  - `MessageBusStrategy`: Weiterleitung an RabbitMQ
+  - `LoggingStrategy`: Ausgabe ins Log
+- Unterstützt Konfiguration über Umgebungsvariablen (`.env`-Datei)
 
-- Sie eine robuste, quelloffene Bibliothek mit aktiver Community ist.
-- Sie umfangreiche Funktionen zum Lesen, Schreiben und Bearbeiten von PDF-Dokumenten bietet.
-- Sie das Extrahieren von Text, Metadaten und eingebetteten Dateien unterstützt, was für die Aufbereitung von JSON-Daten essenziell ist.
-- Sie gut dokumentiert ist und sich nahtlos in Java-basierte Anwendungen integrieren lässt.
+### 🧠 AiPipeline
 
-## Voraussetzungen
+- Subscribt auf die Message Queue des DocumentImporters
+- Wandelt eingehende JSONs in Entitäten um:
+  - Customer
+  - Offer
+  - OfferItems
+- Persistiert diese Daten in einer SQL-Datenbank (MS SQL Server 2019)
+- Bietet eine REST API mit:
+  - Versionierung (`/api/v1`)
+  - OpenAPI (Swagger) Dokumentation
+  - Validierung und Trennung in Controller / Services / DTOs
+- Speichert zusätzlich manuell eingereichte Rechnungen über POST-Requests (z. B. via Postman)
+- Führt jede Minute einen AI-gestützten Matching-Prozess durch:
+  - Lädt alle Rechnungen, die `isChecked == null` sind
+  - Vergleicht sie mit den gespeicherten Angeboten
+  - Wenn eine Übereinstimmung gefunden wird:
+    - Setzt `isChecked` auf das aktuelle Datum
+    - Setzt `isValid` auf `true`
+
+### 🗃️ PersistenceService
+
+- Subscribt ebenfalls auf die RabbitMQ Queue
+- Empfängt dieselben JSON-Daten wie die AiPipeline
+- Persistiert die empfangenen JSON-Dateien in einem separaten Verzeichnis (`OFFER_PERSISTENCE_PATH`)
+- Dient als Backup und zur späteren Nachvollziehbarkeit der Originaldaten
+
+### 📦 Shared Library
+
+- Gemeinsame Abhängigkeit für alle Services
+- Enthält wiederverwendbare:
+  - Utility-Klassen
+  - Konfigurationsklassen für Messaging
+
+## Technologien
 
 - Java 21
-- Gradle 8.13
+- Spring Boot 3
+- Gradle 8
+- RabbitMQ (Messaging)
 - Docker & Docker Compose
-- Eine `.env`-Datei mit konfigurierten Umgebungsvariablen. Eine Beispiel-Datei `.env.example` befindet sich im Projektverzeichnis und zeigt die benötigten angaben.
-> **⚠️ Wichtiger Hinweis:**  
-> Bitte ändere alle Standard-Passwörter und Zugangsdaten in der `.env`-Datei unbedingt vor dem Produktiveinsatz! Die Beispielwerte sind unsicher und dürfen nicht verwendet werden.
+- Apache PDFBox
+- Microsoft SQL Server 2019 (via Docker)
+- OpenAPI (Swagger)
+- JUnit 5 für Tests
 
-### Benötigte Umgebungsvariablen
+## Setup
 
-| Variable                 | Beschreibung                              | Beispielwert         |
-|--------------------------|------------------------------------------|----------------------|
-| `MAX_FILE_SIZE`          | Maximale Größe von PDF-Dateien in MB         | `2`                  |
-| `PATH_OFFERS`            | Verzeichnispfad zum Überwachen von PDFs      | `.`                  |
-| `LOG_LEVEL`              | Protokollstufe für den Dienst               | `INFO`               |
-| `OFFER_PERSISTENCE_PATH` | Pfad zum Speichern verarbeiteter Angebote          | `.`                  |
-| `OFFER_STRATEGY`         | Strategie für die Verarbeitung von Angeboten          | `MessageBusStrategy` |
-| `RABBITMQ_HOST`          | RabbitMQ-Server-Hostname                | `rabbitmq`           |
-| `RABBITMQ_PORT`          | RabbitMQ-Server-Port                    | `5672`               |
-| `RABBITMQ_USERNAME`      | RabbitMQ-Benutzername                       | `user`               |
-| `RABBITMQ_PASSWORD`      | RabbitMQ-Passwort                       | `password`           |
+### Voraussetzungen
 
+- Java 21
+- Gradle ≥ 8.0
+- Docker & Docker Compose
+
+## Ausführen (lokal)
+
+```bash
+docker-compose up --build
+```
+
+Die Services werden automatisch gestartet und verbinden sich mit der Message Queue und der Datenbank. Der DocumentImporter beginnt, das konfigurierte PDF-Verzeichnis zu überwachen.
+
+## Beispielablauf
+
+1. Eine neue PDF wird im überwachten Verzeichnis gespeichert.
+2. Der DocumentImporter erkennt die Datei, konvertiert sie in JSON und sendet sie über RabbitMQ.
+3. Die AiPipeline verarbeitet das JSON, legt Offer, Customer und OfferItems in der Datenbank an.
+4. Die PersistenceService speichert das JSON-Original im Archivverzeichnis.
+5. Die AiPipeline führt jede Minute einen Vergleich mit den Rechnungen durch.
+6. Wenn eine Übereinstimmung gefunden wird, wird die Rechnung als geprüft und gültig markiert.
+
+## Beispielstruktur einer PDF → JSON
+
+```json
+{
+"offerNumber":"ANG-20250518-8266",
+"offerValue":10690.0,
+"offerValidTill":"2025-06-01",
+"offerDate":"2025-05-18",
+"customerDto":{
+   "companyName":"GeoBau Solutions GmbH",
+   "addressStreet":"Bauhofstraße",
+   "addressHouseNumber":"7",
+   "postCode":"10115",
+   "city":"Berlin",
+   "phone":"+49 30 123456789",
+   "mail":"kontakt@geobau-solutions.de"
+},
+"offerItemsDto":[
+   {
+      "posNumber":1,
+      "description":"Tunnelbohrung50mTiefe",
+      "amount":1,
+      "price":4000.0
+   },
+   {
+      "posNumber":2,
+      "description":"Stahlbetonverstärkung",
+      "amount":3,
+      "price":850.0
+   },
+   {   
+      "posNumber":3,
+      "description":"BaugrundanalysevorOrt",
+      "amount":2,
+      "price":620.0
+   },
+   {
+      "posNumber":4,
+      "description":"Sprengvorbereitung&Absicherung",
+      "amount":1,
+      "price":2900.0
+   }
+]
+}
+```
+
+## Projektstruktur
+
+```bash
+vv-projekt/
+├── document-importer/
+├── ai-pipeline/
+├── persistence-service/
+├── shared/
+└── docker-compose.yml
+```
 
 ## Tests ausführen
 
-Um die Tests für den **DocumentImporter** oder **PersistenceService**-Dienst auszuführen:
+Für jeden Service:
 
-1. Stelle sicher, dass Java 21 und Gradle installiert ist.
-2. Öffne das Projekt in IntelliJ oder einem anderen Java-kompatiblen Editor.
-3. Führe die Tests über die IDE aus oder nutze die Kommandozeile.
-4. Wenn sie die komandozeile verwenden, navigiere zum Projektverzeichnis und führe den folgenden Befehl aus:
-   ```bash
-   ./gradlew test
-   ```
-3. Die Testergebnisse sind im Verzeichnis `build/reports/tests/test` oder innerhalb von InteliJ verfügbar.
+```bash
+./gradlew test
+```
 
-## Docker Compose Starten
+Testergebnisse findest du unter `build/reports/tests/test`.
 
-Um den **DocumentImporter**-Dienst mit Docker Compose auszuführen:
+## Entwickler
 
-1. Stelle sicher, dass Docker und Docker Compose auf dem System installiert ist.
-2. Starte den Dienst mit dem folgenden Befehl:
-   ```bash
-   docker-compose up --build
-   ```
-3. Der Dienst überwacht das konfigurierte Verzeichnis und verarbeitet `.pdf`-Dateien gemäß den Angaben in der `.env`-Datei.
-
-## Projektdetails
-
-- **Modul:** Verteilte Verarbeitung
-- **Semester:** Sommersemester 2025
-- **Student:** Casper Pelsma
+* **Name:** Casper Pelsma
+* **Modul:** Verteilte Verarbeitung
+* **Semester:** Sommersemester 2025
