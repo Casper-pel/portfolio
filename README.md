@@ -22,8 +22,8 @@ Inside each project folder, you'll find:
 - **Code**: ✅ Public  
 - **Folder**: [`ip-projekt`](./ip-projekt)
 
-- ### 1. 📦 Verteilte Verarbeitung Projekt
-- **Description**: 
+### 2. 📦 Verteilte Verarbeitung Projekt
+- **Description**: Automatisierter Angebots-/Rechnungsvergleich
 - **Tech Stack**: java, java + springboot
 - **Code**: ✅ Public  
 - **Folder**: [`vv-projekt`](./vv-projekt)
