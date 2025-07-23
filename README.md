@@ -16,12 +16,11 @@ Inside each project folder, you'll find:
 
 ## 🚀 Featured Projects
 
-### 1. 📦 [Project Title 1]
-- **Description**: [Short 1–2 sentence summary of what it does]
-- **Tech Stack**: [e.g. Next.js, Spring Boot, PostgreSQL]
-- **Demo**: [Demo video link or write “Available on request”]
-- **Code**: 🔒 Private / ✅ Public  
-- **Folder**: [`project-title-1`](./project-title-1)
+### 1. 📦 Internet Programmieren Projekt
+- **Description**: 
+- **Tech Stack**: Next.js, Spring Boot, Mongo DB
+- **Code**: ✅ Public  
+- **Folder**: [`ip-projekt`](./ip-projekt)
 
 ---
 
