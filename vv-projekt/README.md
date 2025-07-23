@@ -143,9 +143,10 @@ Die Services werden automatisch gestartet und verbinden sich mit der Message Que
 
 ```bash
 vv-projekt/
-├── document-importer/
-├── ai-pipeline/
-├── persistence-service/
+├── src
+     ├── document-importer/
+     ├── ai-pipeline/
+     └── persistence-service/
 ├── shared/
 └── docker-compose.yml
 ```
