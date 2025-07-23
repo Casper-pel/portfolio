@@ -17,10 +17,16 @@ Inside each project folder, you'll find:
 ## 🚀 Featured Projects
 
 ### 1. 📦 Internet Programmieren Projekt
-- **Description**: 
-- **Tech Stack**: Next.js, Spring Boot, Mongo DB
+- **Description**: Management- und Kassensystem
+- **Tech Stack**: Next.js, java + Spring Boot, Mongo DB
 - **Code**: ✅ Public  
 - **Folder**: [`ip-projekt`](./ip-projekt)
+
+- ### 1. 📦 Verteilte Verarbeitung Projekt
+- **Description**: 
+- **Tech Stack**: java, java + springboot
+- **Code**: ✅ Public  
+- **Folder**: [`vv-projekt`](./vv-projekt)
 
 ---
 
