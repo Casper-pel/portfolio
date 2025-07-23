@@ -1,4 +1,4 @@
-# AI-Pipeline System – Automatisierter Angebots-/Rechnungsvergleich
+# Verteilte Verarbeitung Projekt – Automatisierter Angebots-/Rechnungsvergleich
 
 ## Überblick
 
@@ -96,45 +96,46 @@ Die Services werden automatisch gestartet und verbinden sich mit der Message Que
 
 ```json
 {
-"offerNumber":"ANG-20250518-8266",
-"offerValue":10690.0,
-"offerValidTill":"2025-06-01",
-"offerDate":"2025-05-18",
-"customerDto":{
-   "companyName":"GeoBau Solutions GmbH",
-   "addressStreet":"Bauhofstraße",
-   "addressHouseNumber":"7",
-   "postCode":"10115",
-   "city":"Berlin",
-   "phone":"+49 30 123456789",
-   "mail":"kontakt@geobau-solutions.de"
-},
-"offerItemsDto":[
-   {
-      "posNumber":1,
-      "description":"Tunnelbohrung50mTiefe",
-      "amount":1,
-      "price":4000.0
-   },
-   {
-      "posNumber":2,
-      "description":"Stahlbetonverstärkung",
-      "amount":3,
-      "price":850.0
-   },
-   {   
-      "posNumber":3,
-      "description":"BaugrundanalysevorOrt",
-      "amount":2,
-      "price":620.0
-   },
-   {
-      "posNumber":4,
-      "description":"Sprengvorbereitung&Absicherung",
-      "amount":1,
-      "price":2900.0
-   }
-]
+  "offerNumber":"ANG-20250518-8266",
+  "offerValue":10690.0,
+  "offerValidTill":"2025-06-01",
+  "offerDate":"2025-05-18",
+  "customerDto":{
+     "companyName":"GeoBau Solutions GmbH",
+     "addressStreet":"Bauhofstraße",
+     "addressHouseNumber":"7",
+     "postCode":"10115",
+     "city":"Berlin",
+     "phone":"+49 30 123456789",
+     "mail":"kontakt@geobau-solutions.de"
+  },
+  "offerItemsDto":
+    [
+       {
+          "posNumber":1,
+          "description":"Tunnelbohrung50mTiefe",
+          "amount":1,
+          "price":4000.0
+       },
+       {
+          "posNumber":2,
+          "description":"Stahlbetonverstärkung",
+          "amount":3,
+          "price":850.0
+       },
+       {   
+          "posNumber":3,
+          "description":"BaugrundanalysevorOrt",
+          "amount":2,
+          "price":620.0
+       },
+       {
+          "posNumber":4,
+          "description":"Sprengvorbereitung&Absicherung",
+          "amount":1,
+          "price":2900.0
+       }
+    ]
 }
 ```
 
